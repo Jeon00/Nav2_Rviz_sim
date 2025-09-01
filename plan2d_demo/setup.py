@@ -11,7 +11,6 @@ setup(
             ['resource/' + package_name]),
         ('share/' + package_name, ['package.xml']),
         ('share/' + package_name + '/launch', ['launch/rviz_plan_only.launch.py']),
-        ('share/' + package_name + '/params', ['params/nav2_params.yaml']),
         ('share/' + package_name + '/params', ['params/nav2_new_params.yaml']),
         ('share/' + package_name + '/maps',   ['maps/map.yaml', 'maps/map.pgm']),
         ('share/' + package_name + '/rviz',   ['rviz/blank.rviz']),
