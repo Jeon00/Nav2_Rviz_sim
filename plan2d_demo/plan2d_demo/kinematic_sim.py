@@ -86,8 +86,8 @@ class KinematicSim(Node):
         cosy_cosp = 1.0 - 2.0*(q.y * q.y + q.z * q.z)
         yaw = math.atan2(siny_cosp, cosy_cosp)
 
-        self.x = float(p.x)
-        self.y = float(p.y)
+        self.x =  float(p.x)
+        self.y =  float(p.y)
         self.yaw = float(yaw)
         self.v = 0.0
         self.w = 0.0

@@ -8,12 +8,14 @@ from geometry_msgs.msg import PoseStamped, PoseWithCovarianceStamped
 from nav_msgs.msg import Path
 from nav2_msgs.action import ComputePathToPose
 
-# initial pose와 goal pose를 받아서 planned_path를 실행함 
+# Rviz상의 마우스 조작을 통해 정확한 값을 얻는 역할
 
-class PlanClient(Node):
+class GetPoseNode(Node):
     def __init__(self):
-        super().__init__('plan_client')
+        super().__init__('get_pose_node')
         self.start_pose: PoseStamped | None = None
+
+        # 여기까지 봄
 
         self.start_sub = self.create_subscription(
             PoseWithCovarianceStamped, 'initialpose', self._start_cb, 10)
@@ -41,7 +43,6 @@ class PlanClient(Node):
         if not self.client.wait_for_server(timeout_sec=3.0):
             self.get_logger().error('Planner action server not available.')
             return
-        self.get_logger().info(f'=============================================================Got goal pose : {goal.pose}==============================================================')
 
         goal_msg = ComputePathToPose.Goal()
         goal_msg.start = self.start_pose
@@ -100,3 +101,4 @@ def main():
 
 if __name__ == '__main__':
     main()
+

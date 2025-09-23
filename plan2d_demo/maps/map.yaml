@@ -1,4 +1,4 @@
-image: samples.pgm        # 또는 .pgm
+image: dongwook.pgm        # .png 혹은 .pgm
 resolution: 0.01           # [m/pixel] 지도 해상도
 origin: [0.0, 0.0, 0.0]    # 좌하단 픽셀의 (x,y,yaw)
 negate: 0

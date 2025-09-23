@@ -1,6 +1,10 @@
 from setuptools import find_packages, setup
+from glob import glob
+import os
 
 package_name = 'plan2d_demo'
+
+my_maps = glob('maps/*')
 
 setup(
     name=package_name,
@@ -11,8 +15,8 @@ setup(
             ['resource/' + package_name]),
         ('share/' + package_name, ['package.xml']),
         ('share/' + package_name + '/launch', ['launch/rviz_plan_only.launch.py']),
-        ('share/' + package_name + '/params', ['params/nav2_new_params.yaml']),
-        ('share/' + package_name + '/maps',   ['maps/map.yaml', 'maps/map.pgm']),
+        ('share/' + package_name + '/params', ['params/nav2_params.yaml', 'params/two_phase_params.yaml']),
+        ('share/' + package_name + '/maps', my_maps),
         ('share/' + package_name + '/rviz',   ['rviz/blank.rviz']),
     ],
     install_requires=['setuptools'],
@@ -21,12 +25,15 @@ setup(
     maintainer_email='apka@todo.todo',
     description='TODO: Package description',
     license='TODO: License declaration',
-    tests_require=['pytest'],
+    extras_require={             # <- 선택: pip로 테스트 의존 설치하고 싶을 때만 유지
+        'test': ['pytest', 'ament-flake8', 'ament-pep257', 'ament-pytest']
+    },
     entry_points={
         'console_scripts': [
             'path_client = plan2d_demo.path_client:main',
             'kinematic_sim = plan2d_demo.kinematic_sim:main',
             'robot_marker = plan2d_demo.robot_marker:main',
+            'two_phase_client_humble = plan2d_demo.two_phase_client_humble:main',
         ],
     },
 )
