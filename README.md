@@ -36,49 +36,49 @@
 
 # 파라미터 수정
 
- 본 프로젝트에서는 주행 알고리즘으로 자동 도킹 결과물을 구현하기 위해, 여러 [파라미터](plan2d_demo/params/nav2_params.yaml) 수정이 있었습니다. 아래 표는 보통 주행 프로젝트에서 사용하는 것과 다르게 적용한 내용들에 대한 요약입니다. 
+ 본 프로젝트에서는 주행 알고리즘으로 자동 도킹 결과물을 구현하기 위해, 여러 [파라미터](plan2d_demo/params/nav2_params.yaml) 수정이 있었습니다. 아래 표는 보통의 주행 프로젝트에서 사용하는 것과 다르게 적용한 내용들에 대한 요약입니다. 
 
-1) Planner - Smac Hybrid
+### 1) Planner - Smac Hybrid
 
-    | 파라미터 | 역할 | 관례적 범위 | 현재값 |  설명 | --- |
-    | :--- | :----- | :---: | :---: | :--- | ---|
-    | `motion_model_for_search` | 탐색 운동모델 | - | `REEDS_SHEPP` | 후진을 허용하고 좁은 곳에서 유리 | &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; |
-    | `angle_quantization_bins` | 헤딩 양자화(각 해상도) | 16–72 | **72** | 고해상도 |
-    | `analytic_expansion_max_cost` | 해석 확장 허용 코스트 상한 | 50–150 | **150** | 필연적으로 inflated 된 장애물 사이를 지나가야 하므로, 최대로 설정  |
-    | `analytic_expansion_max_cost_override` | 목표 근접 시 상한 무시 | 보통 `true` | **false** |  장애물에 대한 충돌을 보수적으로 방지 / 복잡한 도킹 구역에서 실패 가능 |
-    | `minimum_turning_radius` | 최소 회전반경 | 0.2–1.0+ | **0.05** | tank turn을 표현하기 위한 장치 |
-    | `reverse_penalty` | 후진 가중(≥1) | 1.0–3.0 | **1.5** | 후진을 약하게만 억제 |
-    | `change_penalty` | 좌/우 전환 가중(≥0) | 1.0± | **0.0** | tank turn을 표현하기 위해, 좌우 전환에 대한 패널티를 주지 않음 |
-    | `non_straight_penalty` | 곡선 가중(≥1) | 1.0–1.5 | **1.2** | 직선 선호 약간↑ |
-    | `cost_penalty` | 코스트맵 회피 가중 | 1.3–3.5 | **1.2** | 필연적으로 costmap 내부로 진입해야 하므로, 최소한으로 설정 |
-    | `use_quadratic_cost_penalty` | 코스트 제곱 가중 | 보통 `true`(보수) | **False** | 고코스트 억제가 약함(장애물에 가까이 지나감 허용) |
-    | `tolerance` | 목표 근방 허용거리 | 0.05–0.25 m | **0.05** | 매우 타이트(경로 계획 실패 가능성은 높으나, 프로젝트 요구 조건) |
-    | `max_iterations` | 탐색 반복 상한 | 1e4–1e5 | **1,000,000** | 상한 매우 큼(실제론 `max_planning_time=5s`가 한계) |
-    | `max_on_approach_iterations` | 목표근접 추가 반복 | 200–1000 | **1000** | 목표 부근 tolance를 맞추기 위함 |
+| 파라미터 | 역할 | 관례적 범위 | 현재값 |  설명 |
+| :--- | :----- | :---: | :---: | :--- |
+| `motion_model_for_search` | 탐색 운동모델 | - | `REEDS_SHEPP` | 후진을 허용하고 좁은 곳에서 유리 |
+| `angle_quantization_bins` | 헤딩 양자화(각 해상도) | 16–72 | **72** | 고해상도 |
+| `analytic_expansion_max_cost` | 해석 확장 허용 코스트 상한 | 50–150 | **150** | 필연적으로 inflated 된 장애물 사이를 지나가야 하므로, 최대로 설정  |
+| `analytic_expansion_max_cost_override` | 목표 근접 시 상한 무시 | 보통 `true` | **false** |  장애물에 대한 충돌을 보수적으로 방지 / 복잡한 도킹 구역에서 실패 가능 |
+| `minimum_turning_radius` | 최소 회전반경 | 0.2–1.0+ | **0.05** | tank turn을 표현하기 위한 장치 |
+| `reverse_penalty` | 후진 가중(≥1) | 1.0–3.0 | **1.5** | 후진을 약하게만 억제 |
+| `change_penalty` | 좌/우 전환 가중(≥0) | 1.0± | **0.0** | tank turn을 표현하기 위해, 좌우 전환에 대한 패널티를 주지 않음 |
+| `non_straight_penalty` | 곡선 가중(≥1) | 1.0–1.5 | **1.2** | 직선 선호 약간↑ |
+| `cost_penalty` | 코스트맵 회피 가중 | 1.3–3.5 | **1.2** | 필연적으로 costmap 내부로 진입해야 하므로, 최소한으로 설정 |
+| `use_quadratic_cost_penalty` | 코스트 제곱 가중 | 보통 `true`(보수) | **False** | 고코스트 억제가 약함(장애물에 가까이 지나감 허용) |
+| `tolerance` | 목표 근방 허용거리 | 0.05–0.25 m | **0.05** | 매우 타이트(경로 계획 실패 가능성은 높으나, 프로젝트 요구 조건) |
+| `max_iterations` | 탐색 반복 상한 | 1e4–1e5 | **1,000,000** | 상한 매우 큼(실제론 `max_planning_time=5s`가 한계) |
+| `max_on_approach_iterations` | 목표근접 추가 반복 | 200–1000 | **1000** | 목표 부근 tolance를 맞추기 위함 |
     
-2) Global / local Costmap
-    | 파라미터 | 역할 | 관례적 범위 | 현재값 |  설명 |
-    | :--- | :----- | :---: | :---: | :--- |
-    | `global_costmap.resolution` | 전역 해상도 | 0.03–0.10 m/px | **0.03** | 고해상도 |
-    | `global_costmap.inflation_layer.inflation_radius` | 전역 인플레이트 | 0.4–0.7 m | **0.79** | 전역 경로는 보수적으로 설정 |
-    | `local_costmap.inflation_layer.inflation_radius` | 지역 인플레이트 | 0.3–0.6 m | **0.20** | 로봇이 장애물에 바짝 붙게 함 |
-    | `track_unknown_space` | 미탐색 공간 취급 | 전역 `true` 권장 | **true** | 미지영역 회피(Planner `allow_unknown=true`와 조합 주의) |
-    | `footprint` | 로봇 외곽(다각형) | 실제 형상 | - | 넓은 폭 1m로 설정, 앞뒤 길이는 0.96m |
+### 2) Global / local Costmap
+| 파라미터 | 역할 | 관례적 범위 | 현재값 |  설명 |
+| :--- | :----- | :---: | :---: | :--- |
+| `global_costmap.resolution` | 전역 해상도 | 0.03–0.10 m/px | **0.03** | 고해상도 |
+| `global_costmap.inflation_layer.inflation_radius` | 전역 인플레이트 | 0.4–0.7 m | **0.79** | 전역 경로는 보수적으로 설정 |
+| `local_costmap.inflation_layer.inflation_radius` | 지역 인플레이트 | 0.3–0.6 m | **0.20** | 로봇이 장애물에 바짝 붙게 설정 |
+| `track_unknown_space` | 미탐색 공간 취급 | 전역 `true` 권장 | **true** | 미지영역 회피(Planner `allow_unknown=true`와 조합 주의) |
+| `footprint` | 로봇 외곽(다각형) | 실제 형상 | - | 넓은 폭 1m로 설정, 앞뒤 길이는 0.96m |
 
-3) Controller - DWB
-    | 파라미터 | 역할 | 관례적 범위 | 현재값 |  설명 |
-    | :--- | :----- | :---: | :---: | :--- |
-    | `min_y_velocity_threshold` | y속도 무시 임계 | 0.001–0.05 | **0.5** | **매우 큼**. 다만 `max_vel_y=0`라 실효 영향 적음(비홀로노믹) |
-    | `xy_goal_tolerance` | 위치 허용오차 | 0.05–0.25 m | **0.1** | 타이트한 편 |
-    | `yaw_goal_tolerance` | 자세 허용오차 | 0.10–0.26 rad | **0.045** | **매우 타이트(≈2.6°)** 도킹급 |
-    | `vx_samples / vtheta_samples` | 샘플 개수 | 10–20 | **20 / 20** | 품질↑ 연산↑ |
-    | `vy_samples` | y 샘플 | 1–5 | **5** | `max_vel_y=0`로 의미 제한적 |
-    | `sim_time` | 시뮬 윈도 | 1.0–3.0 s | **1.7** | 중간 |
-    | `linear_granularity` | 선형 분해 해상도 | 0.03–0.10 m | **0.03** *(중복 중 마지막 유효)* | 세밀 시뮬 |
-    | `angular_granularity` | 각 분해 해상도 | 0.01–0.05 rad | **0.02** *(중복 중 마지막 유효)* | 세밀 시뮬 |
-    | `PathAlign.scale / GoalAlign.scale / PathDist.scale / GoalDist.scale` | 정렬/거리 가중 | 5–30 | **32 / 24 / 32 / 24** | 경로·목표 정렬/접근을 강하게 선호 |
-    | `BaseObstacle.scale` | 장애물 회피 가중 | 0.5–3.0 | **0.08** | **이례적으로 낮음** → 회피보다 경로/목표 중시 |
-    | `RotateToGoal.lookahead_time` | 회전 예측 | 0.5–2.0 / 자동 | **-1.0** | 자동 규칙 사용(상황 의존) |
-    | `stateful` | 목표 근처 상태 유지 | true/false | **True** | 목표 부근 안정성↑ |
+### 3) Controller - DWB
+| 파라미터 | 역할 | 관례적 범위 | 현재값 |  설명 |
+| :--- | :----- | :---: | :---: | :--- |
+| `xy_goal_tolerance` | 위치 허용오차 | 0.05–0.25 m | **0.1** | 타이트함 |
+| `yaw_goal_tolerance` | 자세 허용오차 | 0.10–0.26 rad | **0.045** | **매우 타이트(≈2.6°)**, 도킹 구현을 위해 필요 |
+| `vx_samples / vtheta_samples` | 샘플 개수 | 10–20 | **20 / 20** | 연산량이 많아도 품질을 높이기 위해 높게 설정 |
+| `PathAlign.scale / GoalAlign.scale / PathDist.scale / GoalDist.scale` | 정렬/거리 가중 | 5–30 | **32 / 24 / 32 / 24** | 경로·목표 정렬/접근을 강하게 선호 |
+| `BaseObstacle.scale` | 장애물 회피 가중 | 0.5–3.0 | **0.08** | **이례적으로 낮음** → 회피보다 경로/목표 중시 |
+| `RotateToGoal.lookahead_time` | 회전 예측 | 0.5–2.0 / 자동 | **-1.0** | 자동 규칙 사용(상황 의존) |
+| `stateful` | 목표 근처 상태 유지 | true/false | **True** | 목표 부근 안정성↑ |
 
-4) Progress / Goal Checker
+### 4) Progress / Goal Checker
+| 파라미터 | 역할 | 관례적 범위 | 현재값 |  설명 |
+| :--- | :----- | :---: | :---: | :--- |
+| `required_movement_radius` | 정체 판단 거리 | 0.1–0.3 m | **0.5** | **크다**. 10초(`movement_time_allowance`) 동안 0.5 m 미진전 시 실패 |
+| `movement_time_allowance` | 정체 시간 | 5–15 s | **10.0** | 보통 |
+| `stateful` (goal_checker) | 목표근처 상태 유지 | true/false | **True** | 목표 부근 판정 안정화 |
