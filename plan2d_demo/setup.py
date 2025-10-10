@@ -24,7 +24,7 @@ setup(
     maintainer='apka',
     maintainer_email='apka@todo.todo',
     description='TODO: Package description',
-    license='TODO: License declaration',
+    license='Apache-2.0',
     extras_require={             # <- 선택: pip로 테스트 의존 설치하고 싶을 때만 유지
         'test': ['pytest', 'ament-flake8', 'ament-pep257', 'ament-pytest']
     },
