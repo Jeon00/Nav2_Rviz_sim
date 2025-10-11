@@ -10,8 +10,8 @@ setup(
         ('share/ament_index/resource_index/packages',
             ['resource/' + package_name]),
         ('share/' + package_name, ['package.xml']),
-        ('share/' + package_name + '/params', ['params/two_phase_params.yaml']),
-        ('share/' + package_name + '/launch', ['launch/two_phase.launch.py']),
+        ('share/' + package_name + '/params', ['params/goal_phase_controller_params.yaml']),
+        ('share/' + package_name + '/launch', ['launch/goal_phase_controller.launch.py']),
     
     ],
     install_requires=['setuptools'],
