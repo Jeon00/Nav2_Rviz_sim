@@ -15,7 +15,7 @@ setup(
             ['resource/' + package_name]),
         ('share/' + package_name, ['package.xml']),
         ('share/' + package_name + '/launch', ['launch/rviz_plan_only.launch.py']),
-        ('share/' + package_name + '/params', ['params/nav2_params.yaml', 'params/two_phase_params.yaml']),
+        ('share/' + package_name + '/params', ['params/nav2_params.yaml']),
         ('share/' + package_name + '/maps', my_maps),
         ('share/' + package_name + '/rviz',   ['rviz/blank.rviz']),
     ],
@@ -33,7 +33,6 @@ setup(
             'path_client = plan2d_demo.path_client:main',
             'kinematic_sim = plan2d_demo.kinematic_sim:main',
             'robot_marker = plan2d_demo.robot_marker:main',
-            'two_phase_client_humble = plan2d_demo.two_phase_client_humble:main',
         ],
     },
 )

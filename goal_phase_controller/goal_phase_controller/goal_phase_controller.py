@@ -14,6 +14,7 @@ from rcl_interfaces.msg import Parameter as ParamMsg, ParameterValue, ParameterT
 
 # TODO : 변수 등 변경 시 ***로 표시된 부분 확인. 
 
+
 def yaw_to_quat(yaw: float):
     return (0.0, 0.0, math.sin(yaw * 0.5), math.cos(yaw * 0.5))
 
@@ -30,13 +31,13 @@ def make_pose(x, y, yaw, frame='map'):
 
 class GoalPhaseController(Node):
     def __init__(self):
-        super().__init__('goal_phase_controller_node')
+        super().__init__('goal_phase_controller_client')
 
         # ---------- 입력 파라미터 ----------
         # goal_a / goal_b: [x, y, yaw(rad)]
         self.declare_parameter('frame_id', 'map')
-        self.declare_parameter('goal_a', [1.0, 0.0, 0.0]) # ***
-        self.declare_parameter('goal_b', [2.5, 1.0, 0.0]) # ***
+        self.declare_parameter('goals.001', [5.7, 8.75 , 1.57]) # ***
+        self.declare_parameter('goals.002', [5.67, 9.6, 1.57]) # ***
 
         self.path_pub = self.create_publisher(Path, 'planned_path', 10)
 
@@ -160,6 +161,10 @@ class GoalPhaseController(Node):
 
         pf.add_done_callback(on_plan_sent)
 
+    # --------------- Phase-(i) → 파라미터 변경 → Phase-(i+1) ---------------
+    def _phase_done(self):
+        self.get_logger().info("PHASE done. Applying parameter updates...")
+
     # --------------- Phase-1 → 파라미터 변경 → Phase-2 ---------------
     def _phase1_done(self):
         # self.get_logger().info("PHASE-1 done. Applying parameter updates...")
@@ -212,7 +217,7 @@ class GoalPhaseController(Node):
 
 def main():
     rclpy.init()
-    node = TwoPhaseClientHumble()
+    node = GoalPhaseController()
     rclpy.spin(node)
     node.destroy_node()
     rclpy.shutdown()

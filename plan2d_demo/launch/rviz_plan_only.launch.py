@@ -12,7 +12,6 @@ def generate_launch_description():
     default_map    = os.path.join(pkg_share, 'maps', 'map.yaml')
     default_params = os.path.join(pkg_share, 'params', 'nav2_params.yaml')
     default_rviz = os.path.join(pkg_share, 'rviz', 'blank.rviz')
-    default_rviz   = os.path.join(pkg_share, 'rviz', 'blank.rviz')
 
     declare_map = DeclareLaunchArgument('map',default_value=default_map)
     declare_params = DeclareLaunchArgument('params',default_value=default_params)

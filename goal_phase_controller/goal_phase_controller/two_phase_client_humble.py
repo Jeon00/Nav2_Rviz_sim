@@ -71,8 +71,8 @@ class TwoPhaseClientHumble(Node):
         # ---------- 입력 파라미터 ----------
         # goal_a / goal_b: [x, y, yaw(rad)]
         self.declare_parameter('frame_id', 'map')
-        self.declare_parameter('goal_a', [1.0, 0.0, 0.0]) # ***
-        self.declare_parameter('goal_b', [2.5, 1.0, 0.0]) # ***
+        self.declare_parameter('goal_a', [5.7, 8.75 , 1.57]) # ***
+        self.declare_parameter('goal_b', [5.67, 9.6, 1.57]) # ***
 
         self.path_pub = self.create_publisher(Path, 'planned_path', 10)
 

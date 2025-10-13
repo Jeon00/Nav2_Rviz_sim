@@ -52,6 +52,7 @@ from builtin_interfaces.msg import Duration
 #     rclpy.shutdown()
 
 
+# 로봇 모양 마커
 
 class RobotMarker(Node):
     def __init__(self):

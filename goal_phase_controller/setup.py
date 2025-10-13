@@ -28,6 +28,7 @@ setup(
     entry_points={
         'console_scripts': [
             'goal_phase_controller = goal_phase_controller.goal_phase_controller:main',
+            'two_phase_controller = goal_phase_controller.two_phase_client_humble:main',
         ],
     },
 )
