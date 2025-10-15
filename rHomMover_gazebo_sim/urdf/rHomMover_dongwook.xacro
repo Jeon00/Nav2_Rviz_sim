@@ -1,0 +1,103 @@
+<?xml version="1.0"?>
+<robot name="rHomMover_2"
+    xmlns:xacro="http://ros.org/wiki/xacro">
+
+    <!-- Macro -->
+    <xacro:include filename="macros.xacro"/>
+
+    <!--여기서 xmlns, xacro include 이해 안감 -->
+
+
+    <!-- 아직 joint를 전부 정의하지 않음. 추가로 joint 원점 설정하는것이 헷갈림-->
+    <link name="base_link">
+        <visual>
+            <origin xyz = "0 0 0"/>
+            <geometry>
+                <box size= "1 1 1"/>
+            </geometry>
+        </visual>
+        <collision>
+            <origin xyz = "0 0 0"/>
+            <geometry>
+                <box size= "1 1 1"/>
+            </geometry>
+        </collision>
+
+    </link>
+
+    <joint name="front_fixer" type="fixed">
+        <origin />
+        <parent link = "base_link"/>
+        <child link =  "front_axis"/>
+    </joint>
+
+
+    <link name="front_axis">
+        <visual>
+            <origin xyz = "0 0.55 -0.4"/>
+            <geometry>
+                <cylinder length= "3" radius="0.1"/>
+            </geometry>
+        </visual>
+
+        <collision>
+            <origin xyz = "0 0.55 -0.4"/>
+            <geometry>
+                <cylinder length= "3" radius="0.1"/>
+            </geometry>
+        </collision>
+    </link>
+    
+    <joint name="left_wheel_connection" type="fixed">
+        <origin />
+        <parent link = "base_link"/>
+        <child link =  "front_axis"/>
+    </joint>
+ 
+    <link name="left_wheel">
+        <visual>
+            <origin xyz = "1.5 0.55 -0.4"/>
+            <geometry>
+                <cylinder length= "0.5" radius="0.8"/>
+            </geometry>
+        </visual>
+
+        <collision>
+             <origin xyz = "1.5 0.55 -0.4"/>
+            <geometry>
+                <cylinder length= "0.5" radius="0.8"/>
+            </geometry>
+        </collision>
+    </link>
+
+    <link name="right_wheel">
+        <visual>
+            <origin xyz = "-1.5 0.55 -0.4"/>
+            <geometry>
+                <cylinder length= "0.5" radius="0.8"/>
+            </geometry>
+        </visual>
+
+        <collision>
+            <origin xyz = "-1.5 0.55 -0.4"/>
+            <geometry>
+                <cylinder length= "0.5" radius="0.8"/>
+            </geometry>
+        </collision>
+    </link>
+
+    <link name="caster_wheel">
+        <visual>
+            <origin xyz ="0 -0.15 -0.85"/>
+            <geometry>
+                <sphere radius= "0.35"/>
+            </geometry>
+        </visual>
+
+        <collision>
+            <origin xyz ="0 -0.15 -0.85"/>
+            <geometry>
+                <sphere radius= "0.35"/>
+            </geometry>
+        </collision>
+    </link>

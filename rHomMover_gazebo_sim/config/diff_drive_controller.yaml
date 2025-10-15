@@ -1,0 +1,27 @@
+controller_manager:
+  ros__parameters:
+    update_rate: 50  # Hz
+    use_sim_time: true
+
+    diff_cont:
+      type: diff_drive_controller/DiffDriveController
+    joint_state_broadcaster:
+      type: joint_state_broadcaster/JointStateBroadcaster
+
+
+joint_state_broadcaster:
+  ros__parameters:
+    publish_rate: 50.0            # 선택
+
+diff_cont:
+  ros__parameters:
+    left_wheel_names:  ["left_wheel_joint"]
+    right_wheel_names: ["right_wheel_joint"]
+    wheel_separation: 0.8        # 또는 xacro값과 일치
+    wheel_radius: 0.1            # D_w/2
+    publish_rate: 50.0
+    use_stamped_vel: false       # teleop remap 시 편함
+    base_frame_id: base_link
+    odom_frame_id: odom
+    enable_odom_tf: true
+    position_feedback: true      # state_interface position 사용 시

@@ -3,7 +3,9 @@ import math, time, ast
 import rclpy
 from rclpy.node import Node
 from rclpy.action import ActionClient
+from rclpy.clock import Clock, ClockType
 
+from std_msgs.msg import String
 from geometry_msgs.msg import PoseStamped
 from nav2_msgs.action import ComputePathToPose, FollowPath
 from nav_msgs.msg import Path
@@ -14,6 +16,8 @@ from rcl_interfaces.msg import Parameter as ParamMsg, ParameterValue, ParameterT
 
 # TODO : 변수 등 변경 시 ***로 표시된 부분 확인. 
 
+goal_dict_len = 4
+goal_dict_inspect = True
 
 def yaw_to_quat(yaw: float):
     return (0.0, 0.0, math.sin(yaw * 0.5), math.cos(yaw * 0.5))
@@ -28,44 +32,44 @@ def make_pose(x, y, yaw, frame='map'):
     p.pose.orientation.w = qw
     return p
 
-
 class GoalPhaseController(Node):
     def __init__(self):
-        super().__init__('goal_phase_controller_client')
+        super().__init__('goal_phase_controller_client',
+                         automatically_declare_parameters_from_overrides=True)
+        
+        self._wall_clock = Clock(clock_type=ClockType.STEADY_TIME)
+        self._phase_timer = None
 
         # ---------- 입력 파라미터 ----------
         # goal_a / goal_b: [x, y, yaw(rad)]
-        self.declare_parameter('frame_id', 'map')
-        self.declare_parameter('goals.001', [5.7, 8.75 , 1.57]) # ***
-        self.declare_parameter('goals.002', [5.67, 9.6, 1.57]) # ***
+        # self.declare_parameter('frame_id', 'map')
+        # self.declare_parameter('goals.001', [10.0, 0.5 , 100.0]) # ***
+        # self.declare_parameter('goals.002', [5.67, 9.6, 1.57]) # ***
+
+        if self.has_parameter('frame_id'):
+            self.frame_id = self.get_parameter('frame_id').get_parameter_value().string_value
+        else:
+            self.frame_id = 'map'
+        
+        goals_dict = self.get_parameters_by_prefix('goals')
+        self.goals = [list(map(float, goals_dict[k].value)) for k in sorted(goals_dict.keys())]
+        if goal_dict_inspect:
+            num_goals = len(self.goals)
+            if num_goals != goal_dict_len:
+                self.get_logger().warn(f"Declared goal count ({goal_dict_len}) != Retrieved goal count ({num_goals})")
+        for i in range(len(self.goals)):
+            g = self.goals[i]
+            if len(g) != 3:
+                self.get_logger().error(f"Goal {i+1:03} malformed: expected 3 elements (x,y,yaw), got {len(g)}")
+                continue
+            self.get_logger().info(f"Loaded goal_{i+1:03}: {g}")
+        self.get_logger().info(f"All {len(self.goals)} Gaols loaded.")
+        self.goals_idx:int =0
+
+        
 
         self.path_pub = self.create_publisher(Path, 'planned_path', 10)
-
-        # 일단 파라미터 업데이트는 주석 처리하고, 필요한 경우 수정. 
-
-        # # 컨트롤러 서버에 적용할 파라미터 업데이트 목록 ("name:=value" 문자열)
-        # self.declare_parameter('updates_controller', [
-        #     "FollowPath.sim_time:=2.5",
-        #     "FollowPath.PathAlign.scale:=16.0",
-        #     # "RPP.lookahead_dist:=0.8",
-        # ])
-
-        # # (선택) 로컬 코스트맵에 적용할 파라미터 (인플레이션 등)
-        # self.declare_parameter('updates_local_costmap', [
-        #     "inflation_layer.inflation_radius:=0.35"
-        # ])
-
-        self.frame_id = self.get_parameter('frame_id').get_parameter_value().string_value
-        self.goal_a = list(self.get_parameter('goal_a').get_parameter_value().double_array_value)
-        self.goal_b = list(self.get_parameter('goal_b').get_parameter_value().double_array_value)
-        # self.updates_ctrl = list(self.get_parameter('updates_controller').get_parameter_value().string_array_value)
-        # self.updates_lcm  = list(self.get_parameter('updates_local_costmap').get_parameter_value().string_array_value)
-
-        self.get_logger().info(f"Phase-1 goal: {self.goal_a}")
-        self.get_logger().info(f"Phase-2 goal: {self.goal_b}")
-        # self.get_logger().info(f"Controller updates: {self.updates_ctrl}")
-        # if self.updates_lcm:
-        #     self.get_logger().info(f"Local costmap updates: {self.updates_lcm}")
+        self.phase_pub = self.create_publisher(String, 'control_phase', 10)
 
         self.declare_parameter('planner_action', 'compute_path_to_pose')
         self.declare_parameter('controller_action', 'follow_path')
@@ -92,7 +96,7 @@ class GoalPhaseController(Node):
         # self.ctrl_param_cli.wait_for_service()
         # self.lcm_param_cli.wait_for_service(timeout_sec=2.0)
         self.get_logger().info('Ready. Start Phase-1.')
-        self._run_phase(self.goal_a, 'PHASE-1', after=self._phase1_done)
+        self._run_phase(self.goals[0], 'PHASE-1', after=self._phase_done)
 
     # --------------- plan → follow 공통 루틴 ----------------
     def _run_phase(self, g_xyz, tag, after=None, controller_id:str=''):
@@ -163,57 +167,45 @@ class GoalPhaseController(Node):
 
     # --------------- Phase-(i) → 파라미터 변경 → Phase-(i+1) ---------------
     def _phase_done(self):
-        self.get_logger().info("PHASE done. Applying parameter updates...")
+        self.get_logger().info(f"PHASE done. Applying parameter updates...")
+        # 여기다 다른 파라미터 변경점 넣으면 될 듯.
+        if self.goals_idx+1 < len(self.goals):
+            if self.goals[self.goals_idx][0] ==self.goals[self.goals_idx+1][0] and self.goals[self.goals_idx][1] ==self.goals[self.goals_idx+1][1]:
+                msg = String()
+                msg.data ="TANK_TURN"
+                self.phase_pub.publish(msg)
+            else:
+                msg = String()
+                msg.data ="FORWARD"
+                self.phase_pub.publish(msg)
+        else:
+            msg = String()
+            msg.data ="STOP"
+            self.phase_pub.publish(msg)
+        
 
-    # --------------- Phase-1 → 파라미터 변경 → Phase-2 ---------------
-    def _phase1_done(self):
-        # self.get_logger().info("PHASE-1 done. Applying parameter updates...")
-        self.get_logger().info("PHASE-1 done. Dwell 0.5s before PHASE-2...")
-        timer = self.create_timer(1.5, lambda: (self._cancel_timer_and_start_phase2(timer)))
+        self._phase_timer = self.create_timer(2.0, self._on_phase_timer, clock=self._wall_clock)
+
+    # --------------- 다음 Phase 시작 ---------------
+    
+    def _on_phase_timer(self):
+        try:
+            if self._phase_timer is not None:
+                self._phase_timer.cancel()
+        finally:
+            self._phase_timer = None
+
+        self._start_next()
+
+    def _start_next(self):
+        self.goals_idx += 1
+        if self.goals_idx < len(self.goals):
+            self._run_phase(self.goals[self.goals_idx], f'PHASE-{self.goals_idx+1}', after=self._phase_done)
+        else:
+            self.get_logger().info("All phases done.")
+    
 
 
-        # # 1) controller_server 업데이트
-        # if self.updates_ctrl:
-        #     req = SetParameters.Request()
-        #     req.parameters = []
-        #     for s in self.updates_ctrl:
-        #         if ':=' not in s:
-        #             self.get_logger().warn(f"Skip malformed '{s}' (expected name:=value)")
-        #             continue
-        #         name, raw = s.split(':=', 1)
-        #         val = parse_literal(raw)
-        #         req.parameters.append(to_param_msg(name.strip(), val))
-
-        #     fut = self.ctrl_param_cli.call_async(req)
-
-        #     def after_ctrl(_):
-        #         self.get_logger().info("controller_server parameters updated.")
-        #         # 2) (선택) local_costmap 업데이트
-        #         if self.updates_lcm and self.lcm_param_cli.service_is_ready():
-        #             req2 = SetParameters.Request()
-        #             req2.parameters = []
-        #             for s in self.updates_lcm:
-        #                 if ':=' not in s:
-        #                     self.get_logger().warn(f"Skip malformed '{s}'")
-        #                     continue
-        #                 name, raw = s.split(':=', 1)
-        #                 val = parse_literal(raw)
-        #                 req2.parameters.append(to_param_msg(name.strip(), val))
-        #             fut2 = self.lcm_param_cli.call_async(req2)
-        #             fut2.add_done_callback(lambda __: self._start_phase2())
-        #         else:
-        #             self._start_phase2()
-
-        #     fut.add_done_callback(after_ctrl)
-        # else:
-        #     # 업데이트 없으면 바로 Phase-2
-        #     self._start_phase2()
-    def _cancel_timer_and_start_phase2(self, timer):
-        timer.cancel()
-        self._start_phase2()
-    def _start_phase2(self):
-        # 필요하면 여기서 controller_id='RPP'처럼 다른 플러그인으로 전환도 가능
-        self._run_phase(self.goal_b, 'PHASE-2', controller_id='')
 
 def main():
     rclpy.init()

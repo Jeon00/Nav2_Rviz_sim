@@ -1,0 +1,45 @@
+<?xml version="1.7" ?>
+<sdf version="1.7">
+  <world name="default">
+
+    <!--월드는 기본적으로 sdf 파일이나, sdf를 xml 문법으로 인식하지 못하는 것 같아서 이걸 쓰기로 함-->
+    <!-- 물리 엔진 기본값 -->
+    <physics name="physics" type="ode"/>
+
+    <!-- 광원 -->
+    <include>
+      <uri>model://sun</uri>
+    </include>
+
+    <!-- **평면 바닥** -->
+    <include>
+      <uri>model://ground_plane</uri>
+      <!-- plane 두께가 0 이라 로봇이 관통하는 경우를 막으려면,
+           spawn 높이를 0.05 m 정도 띄우거나,
+           이곳에 <pose>0 0 0 0 0 0</pose> 유지 -->
+    </include>
+
+    <!-- **장애물용 박스** (Static) -->
+    <model name="obstacle_box">
+      <static>true</static>
+      <pose>1 0 0.25 0 0 0</pose>   <!-- x y z R P Y -->
+      <link name="link">
+        <collision name="collision">
+          <geometry>
+            <box><size>0.5 0.5 0.5</size></box>
+          </geometry>
+        </collision>
+        <visual name="visual">
+          <geometry>
+            <box><size>0.5 0.5 0.5</size></box>
+          </geometry>
+          <material>
+            <ambient>0.8 0.2 0.2 1</ambient>
+            <diffuse>0.8 0.2 0.2 1</diffuse>
+          </material>
+        </visual>
+      </link>
+    </model>
+
+  </world>
+</sdf>
