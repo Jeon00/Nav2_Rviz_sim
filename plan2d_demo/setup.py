@@ -14,7 +14,7 @@ setup(
         ('share/ament_index/resource_index/packages',
             ['resource/' + package_name]),
         ('share/' + package_name, ['package.xml']),
-        ('share/' + package_name + '/launch', ['launch/rviz_plan_only.launch.py']),
+        ('share/' + package_name + '/launch', ['launch/rviz_plan_only.launch.py', 'launch/rviz_sim.launch.py']),
         ('share/' + package_name + '/params', ['params/nav2_params.yaml']),
         ('share/' + package_name + '/maps', my_maps),
         ('share/' + package_name + '/rviz',   ['rviz/blank.rviz']),

@@ -15,22 +15,22 @@ def generate_launch_description():
 
     package_path = os.path.join(get_package_share_directory("rHomMover_controller"))
 
-    test_controller = Node(
+    rhom_controller = Node(
         package=pkg_name,
-        executable='test_controller',
-        name='test_controller_node',
+        executable='rhom_mover_controller',
+        name='controller_node',
         output='screen'
     )
 
-    ros_gz_bridge = Node(
-        package='ros_gz_bridge',
-        executable='parameter_bridge',
-        name='right_wheel_bridge',
-        output='screen',
-        arguments=[
-            '/right_wheel_vel@std_msgs/msg/Float64@ignition.msgs.Double'
-        ]
-    )
+    # ros_gz_bridge = Node(
+    #     package='ros_gz_bridge',
+    #     executable='parameter_bridge',
+    #     name='right_wheel_bridge',
+    #     output='screen',
+    #     arguments=[
+    #         '/right_wheel_vel@std_msgs/msg/Float64@ignition.msgs.Double'
+    #     ]
+    # )
     right_wheel_vel = Node(
         package='ros_gz_bridge',
         executable='parameter_bridge',
@@ -70,10 +70,21 @@ def generate_launch_description():
         ]
     )
 
+    box_cmd_vel_bridge = Node(
+        package='ros_gz_bridge',
+        executable='parameter_bridge',
+        name='box_cmd_vel_bridge',
+        output='screen',
+        arguments=[
+            '/cmd_vel@geometry_msgs/msg/Twist@ignition.msgs.Twist'
+        ]
+    )
+
 
 
     return LaunchDescription(
-        [test_controller,
+        [rhom_controller,
+         box_cmd_vel_bridge,
          right_wheel_vel,
          left_wheel_vel,
          right_arm_ang,

@@ -27,7 +27,8 @@ setup(
     },
     entry_points={
         'console_scripts': [
-            'test_controller = rHomMover_controller.test_controller:main'
+            'test_controller = rHomMover_controller.test_controller:main',
+            'rhom_mover_controller = rHomMover_controller.rhom_mover_controller:main'
         ],
     },
 )

@@ -79,13 +79,13 @@ def generate_launch_description():
         arguments=['0','0','0','0','0','0','map','odom'],
         output='screen'
     )
-    # kinematic = Node(
-    #     package='plan2d_demo',
-    #     executable='kinematic_sim',
-    #     name='kinematic_sim',
-    #     output='screen',
-    #     parameters=[{'rate_hz': 50.0}]
-    # )
+    kinematic = Node(
+        package='plan2d_demo',
+        executable='kinematic_sim',
+        name='kinematic_sim',
+        output='screen',
+        parameters=[{'rate_hz': 50.0}]
+    )
     robot_marker = Node(
         package='plan2d_demo',
         executable='robot_marker',
@@ -94,5 +94,5 @@ def generate_launch_description():
     )
 
     return LaunchDescription([declare_map, declare_params, map_server, planner_server, controller_server,
-                              static_map_to_odom, lifecycle_manager, rviz, path_client,
+                              static_map_to_odom,kinematic, lifecycle_manager, rviz, path_client,
                               robot_marker])

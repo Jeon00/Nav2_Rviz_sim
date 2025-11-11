@@ -64,12 +64,11 @@ class GoalPhaseController(Node):
                 continue
             self.get_logger().info(f"Loaded goal_{i+1:03}: {g}")
         self.get_logger().info(f"All {len(self.goals)} Gaols loaded.")
-        self.goals_idx:int =0
-
-        
+        self.goals_idx:int =0        
 
         self.path_pub = self.create_publisher(Path, 'planned_path', 10)
-        self.phase_pub = self.create_publisher(String, 'control_phase', 10)
+        self.phase_pub = self.create_publisher(String, '/control_phase', 10)
+        self.last_phase = String()
 
         self.declare_parameter('planner_action', 'compute_path_to_pose')
         self.declare_parameter('controller_action', 'follow_path')
@@ -172,19 +171,31 @@ class GoalPhaseController(Node):
         if self.goals_idx+1 < len(self.goals):
             if self.goals[self.goals_idx][0] ==self.goals[self.goals_idx+1][0] and self.goals[self.goals_idx][1] ==self.goals[self.goals_idx+1][1]:
                 msg = String()
-                msg.data ="TANK_TURN"
+                msg.data = "TANK_TURN"
+                self.last_phase.data = "TANK_TURN"
                 self.phase_pub.publish(msg)
+                # elif self.last_phase.data =="TRANSITION":
+                #     msg = String()
+                #     msg.data ="TANK_TURN"
+                #     self.last_phase.data = "TANK_TURN"
+                #     self.phase_pub.publish(msg)
             else:
                 msg = String()
-                msg.data ="FORWARD"
+                msg.data ="BACKWARD"
+                self.last_phase.data = "BACKWARD"
                 self.phase_pub.publish(msg)
+                # elif self.last_phase.data =="TRANSITION":
+                #     msg = String()
+                #     msg.data ="BACKWARD"
+                #     self.last_phase.data = "BACKWARD"
+                #     self.phase_pub.publish(msg)
         else:
             msg = String()
             msg.data ="STOP"
             self.phase_pub.publish(msg)
         
 
-        self._phase_timer = self.create_timer(2.0, self._on_phase_timer, clock=self._wall_clock)
+        self._phase_timer = self.create_timer(2.0, self._on_phase_timer, clock=self._wall_clock) # 2초 대기
 
     # --------------- 다음 Phase 시작 ---------------
     
