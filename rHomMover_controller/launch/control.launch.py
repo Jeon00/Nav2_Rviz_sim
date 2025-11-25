@@ -70,13 +70,22 @@ def generate_launch_description():
         ]
     )
 
+    # box_cmd_vel_bridge = Node(
+    #     package='ros_gz_bridge',
+    #     executable='parameter_bridge',
+    #     name='box_cmd_vel_bridge',
+    #     output='screen',
+    #     arguments=[
+    #         '/cmd_vel@geometry_msgs/msg/Twist@ignition.msgs.Twist'
+    #     ]
+    # )
     box_cmd_vel_bridge = Node(
         package='ros_gz_bridge',
         executable='parameter_bridge',
         name='box_cmd_vel_bridge',
         output='screen',
         arguments=[
-            '/cmd_vel@geometry_msgs/msg/Twist@ignition.msgs.Twist'
+            '/body_vel@geometry_msgs/msg/Twist@ignition.msgs.Twist'
         ]
     )
 

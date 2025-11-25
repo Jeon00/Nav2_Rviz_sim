@@ -742,7 +742,8 @@
       </plugin>
 
       <plugin name="gz::sim::systems::VelocityControl" filename="gz-sim-velocity-control-system">
-            <topic>/cmd_vel</topic>
+            <!-- <topic>/cmd_vel</topic> -->
+            <topic>body_vel</topic>
       </plugin>
     </model>
   </world>

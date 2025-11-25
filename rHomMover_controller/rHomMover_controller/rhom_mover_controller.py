@@ -41,6 +41,7 @@ class rHomMoverController(Node):
         self.get_logger().info('KinematicSim ready: listening to /cmd_vel')
 
         # gazebo
+        self.last_joint_command = [0.0, 0.0, 0.0, 0.0]
         self.joint_command = [0.0, 0.0, 0.0, 0.0] # 오휠 / 왼휠 / 오팔 / 왼팔
         self.joint_state = [0.0, 0.0, 0.0, 0.0]
         
@@ -53,11 +54,12 @@ class rHomMoverController(Node):
         self.driving_mode = "BACKWARD"
         self.wait = False
         
-        self.right_wheel_pub = self.create_publisher(Float64, '/right_wheel_vel', 10)
-        self.left_wheel_pub = self.create_publisher(Float64, '/left_wheel_vel', 10)
+        self.right_wheel_pub = self.create_publisher(Float64, '/right_wheel_vel', 20)
+        self.left_wheel_pub = self.create_publisher(Float64, '/left_wheel_vel', 20)
 
-        self.right_arm_pub = self.create_publisher(Float64, '/right_arm_angle', 10)
-        self.left_arm_pub = self.create_publisher(Float64, '/left_arm_angle', 10)
+        self.right_arm_pub = self.create_publisher(Float64, '/right_arm_angle', 20)
+        self.left_arm_pub = self.create_publisher(Float64, '/left_arm_angle', 20)
+        self.body_pub = self.create_publisher(Twist, '/body_vel', 20)
 
         self.initpose_sub = self.create_subscription(
             PoseWithCovarianceStamped, 'initialpose', self._initpose_cb, 50
@@ -81,6 +83,11 @@ class rHomMoverController(Node):
                 self.right_arm_pub.publish(Float64(data=self.joint_command[2]))
                 self.left_arm_pub.publish(Float64(data=self.joint_command[3]))
 
+                body_twist = msg
+                body_twist.angular.z = self.w * 1.0
+
+                self.body_pub.publish(body_twist)
+
                 time.sleep(2.0) # 여기서 기다리면 얘가 움직이지 않을까
 
                 self.last_driving_mode = "TRANSITION"
@@ -97,6 +104,11 @@ class rHomMoverController(Node):
                 self.right_arm_pub.publish(Float64(data=self.joint_command[2]))
                 self.left_arm_pub.publish(Float64(data=self.joint_command[3]))
 
+                body_twist = msg
+                body_twist.angular.z = self.w * 1.0
+
+                self.body_pub.publish(body_twist)
+
                 time.sleep(1.5)
 
                 self.last_driving_mode = "TRANSITION"
@@ -110,6 +122,13 @@ class rHomMoverController(Node):
 
             self.right_arm_pub.publish(Float64(data=self.joint_command[2]))
             self.left_arm_pub.publish(Float64(data=self.joint_command[3]))
+
+            body_twist = msg
+            body_twist.angular.z = self.w * 0.95
+
+            self.body_pub.publish(body_twist)
+
+
             self.get_logger().info(f'currnet mode : {self.driving_mode}, right wheel speed  : {self.joint_command[0]}, right arm angle : {self.joint_command[2]}')
 
     def drv_mode_change(self, msg:String):
@@ -177,8 +196,13 @@ class rHomMoverController(Node):
 
                 right_arm = math.atan(self.length/denom_r)
                 left_arm  = math.atan(self.length/ denom_l)
-            self.joint_command[2] = -right_arm
-            self.joint_command[3] = -left_arm
+            if abs(self.last_joint_command[2] + right_arm) > 0.4 or abs(self.last_joint_command[3] + left_arm) > 0.4:
+                self.joint_command[2] = -right_arm * 0.7
+                self.joint_command[3] = -left_arm * 0.7
+            
+            else:
+                self.joint_command[2] = -right_arm
+                self.joint_command[3] = -left_arm
 
         elif self.driving_mode == "TANK_TURN":
             # 팔 각도
